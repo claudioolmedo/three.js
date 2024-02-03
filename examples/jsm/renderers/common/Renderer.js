@@ -478,7 +478,7 @@ class Renderer {
 		sceneRef.onAfterRender( this, scene, camera, renderTarget );
 
 
-		await this.backend.resolveTimeStampAsync( renderContext, 'render' );
+		await this.backend.resolveTimestampAsync( renderContext, 'render' );
 
 	}
 
@@ -894,7 +894,7 @@ class Renderer {
 
 		backend.finishCompute( computeNodes );
 
-		await this.backend.resolveTimeStampAsync( computeNodes, 'compute' );
+		await this.backend.resolveTimestampAsync( computeNodes, 'compute' );
 
 		//
 
@@ -1085,6 +1085,7 @@ class Renderer {
 	renderObject( object, scene, camera, geometry, material, group, lightsNode ) {
 
 		let overridePositionNode;
+		let overrideFragmentNode;
 
 		//
 
@@ -1103,6 +1104,13 @@ class Renderer {
 				overridePositionNode = overrideMaterial.positionNode;
 
 				overrideMaterial.positionNode = material.positionNode;
+
+			}
+
+			if ( overrideMaterial.isShadowNodeMaterial && ( material.shadowNode && material.shadowNode.isNode ) ) {
+
+				overrideFragmentNode = overrideMaterial.fragmentNode;
+				overrideMaterial.fragmentNode = material.shadowNode;
 
 			}
 
@@ -1133,6 +1141,12 @@ class Renderer {
 		if ( overridePositionNode !== undefined ) {
 
 			scene.overrideMaterial.positionNode = overridePositionNode;
+
+		}
+
+		if ( overrideFragmentNode !== undefined ) {
+
+			scene.overrideMaterial.fragmentNode = overrideFragmentNode;
 
 		}
 
@@ -1194,7 +1208,6 @@ class Renderer {
 
 	get compile() {
 
-		console.warn( 'THREE.Renderer: compile() is deprecated and will be removed in r170, use compileAsync instead.' ); // @deprecated, r170
 		return this.compileAsync;
 
 	}
